@@ -1,7 +1,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { getChatResponse, getGeoLocationResponse } from '../services/geminiService';
-import { ChatBubbleLeftRightIcon, XMarkIcon, PaperAirplaneIcon, GlobeAltIcon, MapPinIcon } from './icons';
+import { getChatResponse } from '../services/geminiService';
+import { ChatBubbleLeftRightIcon, XMarkIcon, PaperAirplaneIcon, GlobeAltIcon } from './icons';
 import { ChatMessage, GroundingSource } from '../types';
 import { GenerateContentResponse } from '@google/genai';
 
@@ -11,7 +11,6 @@ const ChatBot: React.FC = () => {
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [useSearch, setUseSearch] = useState(false);
-    const [useMaps, setUseMaps] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     const scrollToBottom = () => {
@@ -30,16 +29,11 @@ const ChatBot: React.FC = () => {
         setIsLoading(true);
 
         try {
-            let response: GenerateContentResponse;
-            if (useMaps) {
-                response = await getGeoLocationResponse(input);
-            } else {
-                 const history = messages.map(m => ({
-                    role: m.role,
-                    parts: [{ text: m.text }]
-                }));
-                response = await getChatResponse(history, input, useSearch);
-            }
+            const history = messages.map(m => ({
+                role: m.role,
+                parts: [{ text: m.text }]
+            }));
+            const response: GenerateContentResponse = await getChatResponse(history, input, useSearch);
 
             const modelText = response.text;
             let sources: GroundingSource[] | undefined = undefined;
@@ -116,11 +110,8 @@ const ChatBot: React.FC = () => {
                     </div>
                     <div className="p-4 border-t border-dark-border">
                         <div className="flex items-center space-x-2 mb-2">
-                             <button onClick={() => {setUseSearch(!useSearch); setUseMaps(false);}} className={`flex items-center space-x-1 px-2 py-1 text-xs rounded-full border transition-colors ${useSearch ? 'bg-blue-500/50 border-blue-400' : 'border-dark-border hover:bg-white/10'}`}>
-                                <GlobeAltIcon className="w-4 h-4" /> <span>Search</span>
-                            </button>
-                             <button onClick={() => {setUseMaps(!useMaps); setUseSearch(false);}} className={`flex items-center space-x-1 px-2 py-1 text-xs rounded-full border transition-colors ${useMaps ? 'bg-green-500/50 border-green-400' : 'border-dark-border hover:bg-white/10'}`}>
-                                <MapPinIcon className="w-4 h-4" /> <span>Maps</span>
+                             <button onClick={() => setUseSearch(!useSearch)} className={`flex items-center space-x-1 px-2 py-1 text-xs rounded-full border transition-colors ${useSearch ? 'bg-blue-500/50 border-blue-400' : 'border-dark-border hover:bg-white/10'}`}>
+                                <GlobeAltIcon className="w-4 h-4" /> <span>Web Search</span>
                             </button>
                         </div>
                         <form onSubmit={handleSendMessage} className="flex items-center space-x-2">

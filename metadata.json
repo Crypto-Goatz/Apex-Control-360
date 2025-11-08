@@ -1,7 +1,5 @@
 {
   "name": "Apex Control 360",
   "description": "A futuristic, AI-powered business dashboard for orchestrating CRM syncs, automations, and content creation with deep Gemini integration.",
-  "requestFramePermissions": [
-    "microphone"
-  ]
+  "requestFramePermissions": []
 }

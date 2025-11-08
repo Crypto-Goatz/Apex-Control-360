@@ -180,49 +180,6 @@ export const analyzeVideo = async (videoFile: File, prompt: string): Promise<str
     return response.text;
 };
 
-export const getGeoLocationResponse = async (prompt: string): Promise<GenerateContentResponse> => {
-    const ai = getAi();
-
-    const getPosition = (): Promise<GeolocationPosition> => {
-        return new Promise((resolve, reject) => {
-            navigator.geolocation.getCurrentPosition(resolve, reject);
-        });
-    };
-
-    try {
-        const position = await getPosition();
-        const { latitude, longitude } = position.coords;
-
-        const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash",
-            contents: prompt,
-            config: {
-                tools: [{ googleMaps: {} }],
-                toolConfig: {
-                    retrievalConfig: {
-                        latLng: {
-                            latitude: latitude,
-                            longitude: longitude,
-                        },
-                    },
-                },
-            },
-        });
-        return response;
-    } catch (error) {
-        console.error("Could not get location, falling back to non-geo query", error);
-        // Fallback if location is denied
-        const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash",
-            contents: prompt,
-            config: {
-                tools: [{ googleMaps: {} }],
-            },
-        });
-        return response;
-    }
-};
-
 export const getQuickResponse = async (prompt: string): Promise<string> => {
     const ai = getAi();
     const response = await ai.models.generateContent({
